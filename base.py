@@ -47,19 +47,19 @@ def namesakes(sm: pd.DataFrame, big: pd.DataFrame, dif: int = 10) -> pd.DataFram
     Returns:
         pd.DataFrame
     """
-    def f(x): return x[1]["Name"].split()[0]
+    def ret_sur(x): return x[1]["Name"].split()[0]
 
     surn: Dict[str, str] = dict()
     for i in big.iterrows():
-        if f(i) not in surn:
-            surn[f(i)] = [i[1]["Age"]]
+        if ret_surn(i) not in surn:
+            surn[ret_surn(i)] = [i[1]["Age"]]
         else:
-            surn[f(i)].append(i[1]["Age"])
+            surn[ret_surn(i)].append(i[1]["Age"])
 
     df_names: pd.DataFrame = pd.DataFrame()
     for i in sm.iterrows():
-        if f(i) in surn:
-            for j in surn[f(i)]:
+        if ret_surn(i) in surn:
+            for j in surn[ret_surn(i)]:
                 if abs(int(j) - int(i[1]["Age"])) == dif:
                     df_names = df_names.append(i[1], ignore_index=True)
 
