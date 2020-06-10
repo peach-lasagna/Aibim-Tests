@@ -16,7 +16,14 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
         List[str]: Sorted json by tag[elem]
     """
     def sorter(info: List[str]) -> List[str]:
-        """Sorter to json"""
+        """Sorter to json
+        
+        Args:
+            info(List[str]): data to sort
+            
+        Returns:
+            List[str]: Sorted data
+        """
         return sorted(info, key=lambda x: x[tag].split()[elem])
 
     with open('JSON\\'+path, encoding='utf8') as inf:
@@ -78,7 +85,6 @@ def english_leter_in(sm: pd.DataFrame, big: pd.DataFrame) -> List[str]:
     """
     df = pd.concat([sm, big], ignore_index=True)
     return [i[1] for i in df.iterrows() if re.search(r'[a-zA-Z]', i[1]["Name"])]
-    # return df[df["Name"].str.match(r'[a-zA-Z]')]
 
 
 if __name__ == "__main__":
