@@ -1,7 +1,7 @@
 import json
-import pandas as pd
-from typing import List, Dict
 import re
+from typing import Dict, List
+import pandas as pd
 
 
 def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
@@ -16,14 +16,7 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
         List[str]: Sorted json by tag[elem]
     """
     def sorter(info: List[str]) -> List[str]:
-        """Sorter to json
-        
-        Args:
-            info(List[str]): data to sort
-            
-        Returns:
-            List[str]: Sorted data
-        """
+        """Sorter to json"""
         return sorted(info, key=lambda x: x[tag].split()[elem])
 
     with open('JSON\\'+path, encoding='utf8') as inf:
@@ -54,21 +47,22 @@ def namesakes(sm: pd.DataFrame, big: pd.DataFrame, dif: int = 10) -> pd.DataFram
     Returns:
         pd.DataFrame
     """
-    def ret_sur(x): return x[1]["Name"].split()[0]
-
-    surn: Dict[str, str] = dict()
-    for i in big.iterrows():
-        if ret_surn(i) not in surn:
-            surn[ret_surn(i)] = [i[1]["Age"]]
-        else:
-            surn[ret_surn(i)].append(i[1]["Age"])
-
+    df: pd.DataFrame = pd.concat([sm, big], ignore_index=True)
     df_names: pd.DataFrame = pd.DataFrame()
-    for i in sm.iterrows():
-        if ret_surn(i) in surn:
-            for j in surn[ret_surn(i)]:
-                if abs(int(j) - int(i[1]["Age"])) == dif:
-                    df_names = df_names.append(i[1], ignore_index=True)
+    surn: Dict[str, str] = dict()
+    def surname(x): return x[1]["Name"].split()[0]
+
+    for row in df.iterrows():
+        if surname(row) not in surn:
+            surn[surname(row)] = [row[1]["Age"]]
+        else:
+            surn[surname(row)].append(row[1]["Age"])
+
+    for row in df.iterrows():
+        if surname(row) in surn:
+            for j in surn[surname(row)]:
+                if abs(int(j) - int(row[1]["Age"])) == dif:
+                    df_names = df_names.append(row[1], ignore_index=True)
 
     return df_names
 
@@ -83,8 +77,8 @@ def english_leter_in(sm: pd.DataFrame, big: pd.DataFrame) -> List[str]:
     Returns:
         List[str]
     """
-    df = pd.concat([sm, big], ignore_index=True)
-    return [i[1] for i in df.iterrows() if re.search(r'[a-zA-Z]', i[1]["Name"])]
+    df: pd.DataFrame = pd.concat([sm, big], ignore_index=True)
+    return pd.DataFrame([i[1] for i in df.iterrows() if re.search(r'[a-zA-Z]', i[1]["Name"])])
 
 
 if __name__ == "__main__":
@@ -92,11 +86,12 @@ if __name__ == "__main__":
     temp_big: List[str] = json_extracter('big_data_persons.json', 1)
 
     # завозим наши json-данные в DataFrames
+    # 2 главных датафрейма
     df_small: pd.DataFrame = pd.DataFrame(temp_small)
     df_big: pd.DataFrame = pd.DataFrame(temp_big)
 
     df_miss: pd.DataFrame = only_in_small(df_small, df_big)
-    df_eng: pd.DataFrame = pd.DataFrame(english_leter_in(df_small, df_big))
+    df_eng: pd.DataFrame = english_leter_in(df_small, df_big)
     df_name: pd.DataFrame = namesakes(df_small, df_big)
 
     # список листов: их названия и содержимое
