@@ -84,15 +84,16 @@ class DF_processor:
         return pd.DataFrame([row[1] for row in self.df.iterrows() if re.search(r'[a-zA-Z]', row[1]["Name"])])
 
 
+temp_small: List[str] = json_extracter('small_data_persons.json', 0)
+temp_big: List[str] = json_extracter('big_data_persons.json', 1)
+
+# завозим наши json-данные в DataFrames
+df_small: pd.DataFrame = pd.DataFrame(temp_small)
+df_big: pd.DataFrame = pd.DataFrame(temp_big)
+
+df_cls = DF_processor(df_small, df_big)
+
 if __name__ == "__main__":
-    temp_small: List[str] = json_extracter('small_data_persons.json', 0)
-    temp_big: List[str] = json_extracter('big_data_persons.json', 1)
-
-    # завозим наши json-данные в DataFrames
-    df_small: pd.DataFrame = pd.DataFrame(temp_small)
-    df_big: pd.DataFrame = pd.DataFrame(temp_big)
-
-    df_cls = DF_processor(df_small, df_big)
     # список листов: их названия и содержимое
     sheets: Dict[str, pd.DataFrame] = {
         'small_data': df_small,
