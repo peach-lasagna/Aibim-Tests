@@ -23,62 +23,65 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
         return sorter(json.load(inf))
 
 
-def only_in_small(sm: pd.DataFrame, big: pd.DataFrame) -> pd.DataFrame:
-    """People, which only in sm, and not in big
-
-    Args:
-        sm (pd.DataFrame): df_small
-        big (pd.DataFrame): df_big
-
-    Returns:
-        pd.DataFrame
+class DF_processor:
+    """Сlass for operations with dfs
     """
-    return sm[sm.Name.isin(set(sm.Name) - set(big.Name))]
 
+    def __init__(self, sm: pd.DataFrame, big: pd.DataFrame):
+        """
+        Args:
+            sm (pd.DataFrame): small dataframe
+            big (pd.DataFrame): big dataframe
+        """
+        self.sm = sm
+        self.big = big
+        # dataframe(sm, big) merging
+        self.df = pd.concat([sm, big], ignore_index=True)
 
-def namesakes(sm: pd.DataFrame, big: pd.DataFrame, dif: int = 10) -> pd.DataFrame:
-    """Namesakes whose age difference = dif
+    def only_in_small(self) -> pd.DataFrame:
+        """People, which only in sm, and not in big
 
-    Args:
-        sm (pd.DataFrame): df_small
-        big (pd.DataFrame): df_big
-        dif (int, optional): age difference. Defaults to 10.
+        Returns:
+            pd.DataFrame
+        """
+        return self.sm[self.sm["Name"].isin(set(self.sm.Name) - set(self.big.Name))]
 
-    Returns:
-        pd.DataFrame
-    """
-    df: pd.DataFrame = pd.concat([sm, big], ignore_index=True)
-    df_names: pd.DataFrame = pd.DataFrame()
-    surn: Dict[str, str] = dict()
-    def surname(x): return x[1]["Name"].split()[0]
+    def namesakes(self, dif: int = 10) -> pd.DataFrame:
+        """Namesakes whose age difference = dif
 
-    for row in df.iterrows():
-        if surname(row) not in surn:
-            surn[surname(row)] = [row[1]["Age"]]
-        else:
-            surn[surname(row)].append(row[1]["Age"])
+        Args:
+            dif (int, optional): age difference. Defaults to 10.
 
-    for row in df.iterrows():
-        if surname(row) in surn:
-            for j in surn[surname(row)]:
-                if abs(int(j) - int(row[1]["Age"])) == dif:
-                    df_names = df_names.append(row[1], ignore_index=True)
+        Returns:
+            pd.DataFrame:
+        """
+        # func to get surname
+        def surname(x): return x[1]["Name"].split()[0]
+        df_names: pd.DataFrame = pd.DataFrame()  # empty df
+        surn: Dict[str, str] = dict()
 
-    return df_names
+        # write in surn {surname: age}
+        for row in self.df.iterrows():
+            if surname(row) not in surn:
+                surn[surname(row)] = [row[1]["Age"]]
+            else:
+                surn[surname(row)].append(row[1]["Age"])
 
+        for row in self.df.iterrows():
+            if surname(row) in surn:
+                for j in surn[surname(row)]:
+                    if abs(int(j) - int(row[1]["Age"])) == dif:
+                        df_names = df_names.append(row[1], ignore_index=True)
 
-def english_leter_in(sm: pd.DataFrame, big: pd.DataFrame) -> List[str]:
-    """People, whose name/surname has еnglish letter in
+        return df_names
 
-    Args:
-        sm (pd.DataFrame): df_small
-        big (pd.DataFrame): df_big
+    def english_leter_in(self) -> pd.DataFrame:
+        """People, whose name/surname has еnglish letter in
 
-    Returns:
-        List[str]
-    """
-    df: pd.DataFrame = pd.concat([sm, big], ignore_index=True)
-    return pd.DataFrame([i[1] for i in df.iterrows() if re.search(r'[a-zA-Z]', i[1]["Name"])])
+        Returns:
+            pd.DataFrame
+        """
+        return pd.DataFrame([row[1] for row in self.df.iterrows() if re.search(r'[a-zA-Z]', row[1]["Name"])])
 
 
 if __name__ == "__main__":
@@ -86,21 +89,17 @@ if __name__ == "__main__":
     temp_big: List[str] = json_extracter('big_data_persons.json', 1)
 
     # завозим наши json-данные в DataFrames
-    # 2 главных датафрейма
     df_small: pd.DataFrame = pd.DataFrame(temp_small)
     df_big: pd.DataFrame = pd.DataFrame(temp_big)
 
-    df_miss: pd.DataFrame = only_in_small(df_small, df_big)
-    df_eng: pd.DataFrame = english_leter_in(df_small, df_big)
-    df_name: pd.DataFrame = namesakes(df_small, df_big)
-
+    df_cls = DF_processor(df_small, df_big)
     # список листов: их названия и содержимое
     sheets: Dict[str, pd.DataFrame] = {
         'small_data': df_small,
         'big_data': df_big,
-        'missing names': df_miss,
-        'english_leter_in': df_eng,
-        'namesakes': df_name
+        'missing names': df_cls.only_in_small(),
+        'english_leter_in': df_cls.english_leter_in(),
+        'namesakes': df_cls.namesakes()
     }
 
     # запись в файл .xlsx
