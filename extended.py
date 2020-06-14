@@ -1,6 +1,6 @@
 import pandas as pd
 from collections import Counter
-from base import exc_writer
+from base import exc_write
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -25,7 +25,7 @@ class DF_processor:
     def __post_init__(self):
         DF_processor.to_datetime(self.cont)
 
-    def cont_amount(self, min_coun: int = 5) -> pd.DataFrame:
+    def get_cont_amount(self, min_coun: int = 5) -> pd.DataFrame:
         """People contacts amout
 
         Args:
@@ -50,7 +50,7 @@ class DF_processor:
         self.contacts_df: pd.DataFrame = contacts
         return contacts
 
-    def cont_duration(self) -> pd.DataFrame:
+    def get_cont_duration(self) -> pd.DataFrame:
         """DF of people sorted in reverse order by total duration
 contact with other people
 
@@ -84,7 +84,7 @@ contact with other people
 
         return df_dur
 
-    def age_group(self, step: int = 10) -> pd.DataFrame:
+    def get_age_groups(self, step: int = 10) -> pd.DataFrame:
         """Age groups of people with age difference = step , and amount of contact they made
 
         Returns:
@@ -134,16 +134,16 @@ if __name__ == "__main__":
     df_cls_big = DF_processor(sm_persons, sm_contacts)
 
     sheets_sm = {
-        'contacts_amount': df_cls_sm.cont_amount(),
-        'contact_duration': df_cls_sm.cont_duration(),
-        'age_groups': df_cls_sm.age_group()
+        'contacts_amount': df_cls_sm.get_cont_amount(),
+        'contact_duration': df_cls_sm.get_cont_duration(),
+        'age_groups': df_cls_sm.get_age_groups()
     }
-    exc_writer('extended_sm', sheets_sm)
 
     sheets_big = {
-        'contacts_amount': df_cls_big.cont_amount(),
-        'contact_duration': df_cls_big.cont_duration(),
-        'age_groups': df_cls_big.age_group()
+        'contacts_amount': df_cls_big.get_cont_amount(),
+        'contact_duration': df_cls_big.get_cont_duration(),
+        'age_groups': df_cls_big.get_age_groups()
     }
 
-    exc_writer('extended_big', sheets_big)
+    exc_write('extended_sm', sheets_sm)
+    exc_write('extended_big', sheets_big)
