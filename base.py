@@ -5,14 +5,14 @@ import pandas as pd
 from dataclasses import dataclass
 
 
-def json_extracter(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON\\") -> List[str]:
+def json_extracter(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON") -> List[str]:
     """Extract data from json
 
     Args:
         path (str): path to file
         elem (int, optional): Key[elem] to sort. Defaults to 0.
         tag (str, optional): Key to sort. Defaults to "Name".
-
+        JSON (str, optional): path to .json files
     Returns:
         List[str]: Sorted json by tag[elem]
     """
