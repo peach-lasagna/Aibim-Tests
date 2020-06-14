@@ -131,7 +131,7 @@ if __name__ == "__main__":
     big_contacts = pd.read_json('JSON/big_data_contracts.json')
 
     df_cls_sm = DF_processor(sm_persons, sm_contacts)
-    df_cls_big = DF_processor(sm_persons, sm_contacts)
+    df_cls_big = DF_processor(big_persons, big_contacts)
 
     sheets_sm = {
         'contacts_amount': df_cls_sm.get_cont_amount(),
