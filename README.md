@@ -5,7 +5,7 @@
 ## Установка
 
 ```bash
-$ git clone git@github.com:wretwe/Aibim-Test.git
+$ git clone https://github.com/wretwe/Aibim-Tests.git
 ```
 
 ```bash
