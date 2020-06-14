@@ -24,16 +24,23 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
         return sorter(json.load(inf))
 
 
-def exc_writer(name_file: str, sheets: Dict[str, pd.DataFrame]):
-    """Write data to .xlsx format file
+def exc_writer(name_file: str, sheets: Dict[str, pd.DataFrame],
+               ext: str = '.xlsx', engine: str = 'xlsxwriter') -> None:
+    """Write data to ext format file
 
     Args:
         name_file (str): name to file
         sheets (Dict[str, pd.DataFrame]): data to write in file
+        ext(str, optional): file extension
+        engine(str, optional): engine to writer
+
+    Returns:
+        None
     """
-    with pd.ExcelWriter(name_file+'.xlsx', engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(name_file+ext, engine=engine) as writer:
         for sheet_name, sheed_data in sheets.items():
             sheets[sheet_name].to_excel(writer, sheet_name, index=False)
+    print('Success!')
 
 
 @dataclass
@@ -54,7 +61,8 @@ class DF_processor:
         Returns:
             pd.DataFrame
         """
-        return self.sm[self.sm["Name"].isin(set(self.sm.Name) - set(self.big.Name))]
+        return self.sm[self.sm["Name"].isin(
+            set(self.sm.Name) - set(self.big.Name))]
 
     def namesakes(self, dif: int = 10) -> pd.DataFrame:
         """Namesakes whose age difference = dif
@@ -91,7 +99,8 @@ class DF_processor:
         Returns:
             pd.DataFrame
         """
-        return pd.DataFrame([row[1] for row in self.df.iterrows() if re.search(r'[a-zA-Z]', row[1]["Name"])])
+        return pd.DataFrame([row[1] for row in self.df.iterrows()
+                             if re.search(r'[a-zA-Z]', row[1]["Name"])])
 
 
 temp_small: List[str] = json_extracter('small_data_persons.json', 0)
