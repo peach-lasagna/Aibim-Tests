@@ -4,9 +4,8 @@ from typing import Dict, List
 import pandas as pd
 from dataclasses import dataclass
 
-JSON = 'JSON\\'
 
-def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
+def json_extracter(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON\\") -> List[str]:
     """Extract data from json
 
     Args:
