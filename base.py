@@ -2,6 +2,7 @@ import json
 import re
 from typing import Dict, List
 import pandas as pd
+from dataclasses import dataclass
 
 
 def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
@@ -23,20 +24,29 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
         return sorter(json.load(inf))
 
 
-class DF_processor:
-    """Сlass for operations with dfs
-    """
+def exc_writer(name_file: str, sheets: Dict[str, pd.DataFrame]):
+    """Write data to .xlsx format file
 
-    def __init__(self, sm: pd.DataFrame, big: pd.DataFrame):
-        """
-        Args:
-            sm (pd.DataFrame): small dataframe
-            big (pd.DataFrame): big dataframe
-        """
-        self.sm = sm
-        self.big = big
+    Args:
+        name_file (str): name to file
+        sheets (Dict[str, pd.DataFrame]): data to write in file
+    """
+    with pd.ExcelWriter(name_file+'.xlsx', engine='xlsxwriter') as writer:
+        for sheet_name, sheed_data in sheets.items():
+            sheets[sheet_name].to_excel(writer, sheet_name, index=False)
+
+
+@dataclass
+class DF_processor:
+    """Class for operations with dfs
+    """
+    sm: pd.DataFrame
+    big: pd.DataFrame
+
+    def __post_init__(self):
         # dataframe(sm, big) merging
-        self.df = pd.concat([sm, big], ignore_index=True)
+        self.df: pd.DataFrame = pd.concat(
+            [self.sm, self.big], ignore_index=True)
 
     def only_in_small(self) -> pd.DataFrame:
         """People, which only in sm, and not in big
@@ -58,7 +68,7 @@ class DF_processor:
         # func to get surname
         def surname(x): return x[1]["Name"].split()[0]
         df_names: pd.DataFrame = pd.DataFrame()  # empty df
-        surn: Dict[str, str] = dict()
+        surn: Dict[str, List[str]] = dict()
 
         # write in surn {surname: age}
         for row in self.df.iterrows():
@@ -103,8 +113,4 @@ if __name__ == "__main__":
         'namesakes': df_cls.namesakes()
     }
 
-    # запись в файл .xlsx
-    with pd.ExcelWriter('data_json_1.xlsx', engine='xlsxwriter') as writer:
-        for sheet_name, sheed_data in sheets.items():
-            sheets[sheet_name].to_excel(
-                writer, sheet_name=sheet_name, index=False)
+    exc_writer('base', sheets)
