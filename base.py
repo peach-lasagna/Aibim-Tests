@@ -4,6 +4,7 @@ from typing import Dict, List
 import pandas as pd
 from dataclasses import dataclass
 
+JSON = 'JSON\\'
 
 def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
     """Extract data from json
@@ -20,7 +21,7 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name") -> List[str]:
         """Sorter to json"""
         return sorted(info, key=lambda x: x[tag].split()[elem])
 
-    with open('JSON\\'+path, encoding='utf8') as inf:
+    with open(JSON+path, encoding='utf8') as inf:
         return sorter(json.load(inf))
 
 
