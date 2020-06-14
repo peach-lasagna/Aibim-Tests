@@ -5,7 +5,7 @@ import pandas as pd
 from dataclasses import dataclass
 
 
-def json_extracter(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON") -> List[str]:
+def json_extract(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON\\") -> List[str]:
     """Extract data from json
 
     Args:
@@ -24,8 +24,8 @@ def json_extracter(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSO
         return sorter(json.load(inf))
 
 
-def exc_writer(name_file: str, sheets: Dict[str, pd.DataFrame],
-               ext: str = '.xlsx', engine: str = 'xlsxwriter') -> None:
+def exc_write(name_file: str, sheets: Dict[str, pd.DataFrame],
+              ext: str = '.xlsx', engine: str = 'xlsxwriter') -> None:
     """Write data to ext format file
 
     Args:
@@ -55,7 +55,7 @@ class DF_processor:
         self.df: pd.DataFrame = pd.concat(
             [self.sm, self.big], ignore_index=True)
 
-    def only_in_small(self) -> pd.DataFrame:
+    def get_only_in_small(self) -> pd.DataFrame:
         """People, which only in sm, and not in big
 
         Returns:
@@ -64,7 +64,7 @@ class DF_processor:
         return self.sm[self.sm["Name"].isin(
             set(self.sm.Name) - set(self.big.Name))]
 
-    def namesakes(self, dif: int = 10) -> pd.DataFrame:
+    def get_namesakes(self, dif: int = 10) -> pd.DataFrame:
         """Namesakes whose age difference = dif
 
         Args:
@@ -93,7 +93,7 @@ class DF_processor:
 
         return df_names
 
-    def english_leter_in(self) -> pd.DataFrame:
+    def get_eng_leter_in(self) -> pd.DataFrame:
         """People, whose name/surname has еnglish letter in
 
         Returns:
@@ -103,8 +103,8 @@ class DF_processor:
                              if re.search(r'[a-zA-Z]', row[1]["Name"])])
 
 
-temp_small: List[str] = json_extracter('small_data_persons.json', 0)
-temp_big: List[str] = json_extracter('big_data_persons.json', 1)
+temp_small: List[str] = json_extract('small_data_persons.json', 0)
+temp_big: List[str] = json_extract('big_data_persons.json', 1)
 
 # завозим наши json-данные в DataFrames
 df_small: pd.DataFrame = pd.DataFrame(temp_small)
@@ -117,9 +117,9 @@ if __name__ == "__main__":
     sheets: Dict[str, pd.DataFrame] = {
         'small_data': df_small,
         'big_data': df_big,
-        'missing names': df_cls.only_in_small(),
-        'english_leter_in': df_cls.english_leter_in(),
-        'namesakes': df_cls.namesakes()
+        'missing names': df_cls.get_only_in_small(),
+        'english_leter_in': df_cls.get_eng_leter_in(),
+        'namesakes': df_cls.get_namesakes()
     }
 
-    exc_writer('base', sheets)
+    exc_write('base', sheets)
