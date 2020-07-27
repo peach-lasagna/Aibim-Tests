@@ -1,17 +1,12 @@
 import pandas as pd
 from collections import Counter
 from base import exc_write
-from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 
-@dataclass
 class DF_processor:
     """Main class with all content
     """
-    pers: pd.DataFrame
-    cont: pd.DataFrame
-
     @staticmethod
     def to_datetime(df_con: pd.DataFrame) -> None:
         """Convert rows to datetime
@@ -21,8 +16,10 @@ class DF_processor:
         """
         df_con.From = pd.to_datetime(df_con.From, dayfirst=True)
         df_con.To = pd.to_datetime(df_con.To, dayfirst=True)
-
-    def __post_init__(self):
+        
+    def __init__(self, pers: pd.DataFrame, cont: pd.DataFrame):
+        self.pers = pers
+        self.cont = cont
         DF_processor.to_datetime(self.cont)
 
     def get_cont_amount(self, min_coun: int = 5) -> pd.DataFrame:
