@@ -2,7 +2,6 @@ import json
 import re
 from typing import Dict, List
 import pandas as pd
-from dataclasses import dataclass
 
 
 def json_extract(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON\\") -> List[str]:
@@ -13,8 +12,10 @@ def json_extract(path: str, elem: int = 0, tag: str = "Name", JSON: str = "JSON\
         elem (int, optional): Key[elem] to sort. Defaults to 0.
         tag (str, optional): Key to sort. Defaults to "Name".
         JSON (str, optional): path to .json files
+        
     Returns:
         List[str]: Sorted json by tag[elem]
+        
     """
     def sorter(info: List[str]) -> List[str]:
         """Sorter to json"""
@@ -33,9 +34,7 @@ def exc_write(name_file: str, sheets: Dict[str, pd.DataFrame],
         sheets (Dict[str, pd.DataFrame]): data to write in file
         ext(str, optional): file extension
         engine(str, optional): engine to writer
-
-    Returns:
-        None
+        
     """
     with pd.ExcelWriter(name_file+ext, engine=engine) as writer:
         for sheet_name, sheed_data in sheets.items():
@@ -43,14 +42,13 @@ def exc_write(name_file: str, sheets: Dict[str, pd.DataFrame],
     print('Success!')
 
 
-@dataclass
 class DF_processor:
     """Class for operations with dfs
     """
-    sm: pd.DataFrame
-    big: pd.DataFrame
 
-    def __post_init__(self):
+    def __init__(self, sm: pd.DataFrame, big: pd.DataFrame):
+        self.sm = sm
+        self.big = big
         # dataframe(sm, big) merging
         self.df: pd.DataFrame = pd.concat(
             [self.sm, self.big], ignore_index=True)
@@ -60,6 +58,7 @@ class DF_processor:
 
         Returns:
             pd.DataFrame
+            
         """
         return self.sm[self.sm["Name"].isin(
             set(self.sm.Name) - set(self.big.Name))]
@@ -71,10 +70,11 @@ class DF_processor:
             dif (int, optional): age difference. Defaults to 10.
 
         Returns:
-            pd.DataFrame:
+            pd.DataFrame
+            
         """
         # func to get surname
-        def surname(x): return x[1]["Name"].split()[0]
+        surname = lambda x: x[1]["Name"].split()[0]
         df_names: pd.DataFrame = pd.DataFrame()  # empty df
         surn: Dict[str, List[str]] = dict()
 
@@ -98,6 +98,7 @@ class DF_processor:
 
         Returns:
             pd.DataFrame
+            
         """
         return pd.DataFrame([row[1] for row in self.df.iterrows()
                              if re.search(r'[a-zA-Z]', row[1]["Name"])])
